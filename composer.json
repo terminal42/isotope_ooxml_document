@@ -1,7 +1,7 @@
 {
   "name": "terminal42/isotope_ooxml_document",
   "type": "contao-bundle",
-  "description": "",
+  "description": "OOXML Office Documents bundle for Isotope eCommerce",
   "license": "MIT",
   "authors": [
     {
@@ -16,7 +16,12 @@
   },
   "require": {
     "php": "^7.3",
+
     "contao/core-bundle": "^4.9",
+    "isotope/isotope-core": "^2.6",
+
+    "phpoffice/phpword": "^0.17",
+
     "symfony/config": "^4.0 || ^5.0",
     "symfony/dependency-injection": "^4.0 || ^5.0",
     "symfony/http-kernel": "^4.0 || ^5.0"

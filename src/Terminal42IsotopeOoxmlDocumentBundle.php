@@ -11,7 +11,10 @@ declare(strict_types=1);
  * @link       http://github.com/terminal42/isotope_ooxml_document
  */
 
-use Isotope\Model\Document;
-use Terminal42\IsotopeOoxmlDocument\Isotope\Document\WordTemplate;
+namespace Terminal42\IsotopeOoxmlDocument;
 
-Document::registerModelType('word_template', WordTemplate::class);
+use Symfony\Component\HttpKernel\Bundle\Bundle;
+
+class Terminal42IsotopeOoxmlDocumentBundle extends Bundle
+{
+}
