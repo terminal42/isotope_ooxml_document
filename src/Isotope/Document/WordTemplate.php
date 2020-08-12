@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Terminal42\IsotopeOoxmlDocument\Isotope\Document;
 
 use Contao\CoreBundle\Exception\ResponseException;
+use Contao\FilesModel;
 use Contao\PageModel;
 use Contao\System;
 use Isotope\Frontend;
@@ -92,9 +93,12 @@ class WordTemplate extends Document implements IsotopeDocument
     {
         Settings::setOutputEscapingEnabled(true);
 
-        $templatePath = System::getContainer()->getParameter('app.isotope_invoice_doxc');
+        $templateFile = FilesModel::findByPk($this->wordDocumentTpl);
+        if (null === $templateFile) {
+            throw new \LogicException('Could not find word document template. Make sure to have a word document assigned in the template configuration.');
+        }
 
-        $templateProcessor = new TemplateProcessor($templatePath);
+        $templateProcessor = new TemplateProcessor(TL_ROOT.'/'.$templateFile->path);
 
         // Set the variables to replace in the template.
         // The variables are well-formatted already, e.g. "order_locked" is a formatted date-string.

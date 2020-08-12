@@ -14,7 +14,7 @@ declare(strict_types=1);
 $GLOBALS['TL_DCA']['tl_iso_document']['palettes']['word_template'] =
     '{type_legend},name,type;{config_legend},documentTitle,fileTitle;{template_legend},wordDocumentTpl,orderCollectionBy';
 
-$GLOBALS['TL_DCA']['tl_iso_document']['fields']['wordDocumentTpl']     = [
+$GLOBALS['TL_DCA']['tl_iso_document']['fields']['wordDocumentTpl'] = [
     'inputType' => 'fileTree',
     'exclude'   => true,
     'eval'      => [
