@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.1">
+    <file>
+        <body>
+            <trans-unit id="tl_iso_document.wordDocumentTpl.0">
+                <target>Word template</target>
+            </trans-unit>
+            <trans-unit id="tl_iso_document.wordDocumentTpl.1">
+                <target>Choose a Microsoft Word document (.doc or .docx) that holds placeholder variables.</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
