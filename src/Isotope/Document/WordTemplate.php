@@ -24,7 +24,7 @@ use Isotope\Interfaces\IsotopePurchasableCollection;
 use Isotope\Isotope;
 use Isotope\Model\Document;
 use Isotope\Model\ProductCollection;
-use PhpOffice\PhpWord\Exception\Exception;
+use PhpOffice\PhpWord\Exception\Exception as WordException;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -48,7 +48,7 @@ class WordTemplate extends Document implements IsotopeDocument
         $variables = $this->generateDocumentVariables($objCollection);
         $document  = $this->generateDocument($objCollection, $variables);
         $fileName  = $this->prepareFileName($this->fileTitle, $tokens).'.docx';
-        $tmpPath   =$document->save();
+        $tmpPath   = $document->save();
 
         $response = new BinaryFileResponse($tmpPath);
         $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $fileName);
@@ -91,8 +91,8 @@ class WordTemplate extends Document implements IsotopeDocument
      */
     protected function generateDocument(IsotopeProductCollection $order, array $variables): TemplateProcessor
     {
-        $pageModel       = PageModel::findWithDetails($order->page_id);
-        $dateFormat      = $pageModel->dateFormat ?: $GLOBALS['TL_CONFIG']['dateFormat'];
+        $pageModel  = PageModel::findWithDetails($order->page_id);
+        $dateFormat = $pageModel->dateFormat ?: $GLOBALS['TL_CONFIG']['dateFormat'];
 
         Settings::setOutputEscapingEnabled(true);
 
@@ -111,36 +111,10 @@ class WordTemplate extends Document implements IsotopeDocument
         $templateProcessor->setValue('order_date', date($dateFormat, (int) $order->getLockTime()));
 
         // Now: process the collection items.
-        $templateProcessor->cloneRow('item_name', $order->countItems());
-        $sortCallback = ProductCollection::getItemsSortingCallable($this->orderCollectionBy);
-
-        $i = 0;
-        foreach ($order->getItems($sortCallback) as $item) {
-            ++$i;
-
-            $templateProcessor->setValue(sprintf('item_%s#%d', 'name', $i), $item->getName());
-            $templateProcessor->setValue(sprintf('item_%s#%d', 'quantity', $i), $item->quantity);
-            $templateProcessor->setValue(sprintf('item_%s#%d', 'price', $i), $this->formatPrice($item->getPrice()));
-            $templateProcessor->setValue(sprintf('item_%s#%d', 'total_price', $i), $this->formatPrice($item->getTotalPrice()));
-            $templateProcessor->setValue(sprintf('item_%s#%d', 'attributes', $i), implode(', ', $item->getOptions()));
-            // TODO format attributes as with attributeLabel() and attributeValue() callbacks
-        }
+        $this->processItems($templateProcessor, $order);
 
         // Same procedure for the surcharges (shipping fee, taxes etc.)
-        $surcharges = $order->getSurcharges();
-        try {
-            $templateProcessor->cloneRow('surcharge_label', \count($surcharges));
-
-            $i = 0;
-            foreach ($surcharges as $surcharge) {
-                ++$i;
-
-                $templateProcessor->setValue(sprintf('surcharge_%s#%d', 'label', $i), $surcharge->label);
-                $templateProcessor->setValue(sprintf('surcharge_%s#%d', 'price', $i), $this->formatPrice($surcharge->price));
-                $templateProcessor->setValue(sprintf('surcharge_%s#%d', 'total_price', $i), $this->formatPrice($surcharge->total_price));
-            }
-        } catch (Exception $e) {
-        }
+        $this->processSurcharges($order, $templateProcessor);
 
         // If you want to add your own variables to processed word template, use the getNotificationTokens hook.
         // Might add an event here later, to allow further modification of the template processing.
@@ -175,5 +149,50 @@ class WordTemplate extends Document implements IsotopeDocument
     private function formatPrice($price)
     {
         return Isotope::formatPriceWithCurrency($price, false);
+    }
+
+    private function processItems(TemplateProcessor $templateProcessor, IsotopeProductCollection $order): void
+    {
+        $sortCallback = ProductCollection::getItemsSortingCallable($this->orderCollectionBy);
+        try {
+            $templateProcessor->cloneRow('item_name', $order->countItems());
+
+            $i = 0;
+            foreach ($order->getItems($sortCallback) as $item) {
+                ++$i;
+
+                $templateProcessor->setValue(sprintf('item_%s#%d', 'name', $i), $item->getName());
+                $templateProcessor->setValue(sprintf('item_%s#%d', 'quantity', $i), $item->quantity);
+                $templateProcessor->setValue(sprintf('item_%s#%d', 'price', $i), $this->formatPrice($item->getPrice()));
+                $templateProcessor->setValue(sprintf('item_%s#%d', 'total_price', $i), $this->formatPrice($item->getTotalPrice()));
+                $templateProcessor->setValue(sprintf('item_%s#%d', 'attributes', $i), implode(', ', $item->getOptions()));
+                // TODO format attributes as with attributeLabel() and attributeValue() callbacks
+            }
+        } catch (WordException $e) {
+        }
+    }
+
+    private function processSurcharges(IsotopeProductCollection $order, TemplateProcessor $templateProcessor): void
+    {
+        $surcharges = $order->getSurcharges();
+        try {
+            $templateProcessor->cloneRow('surcharge_label', \count($surcharges));
+
+            $i = 0;
+            foreach ($surcharges as $surcharge) {
+                ++$i;
+
+                $templateProcessor->setValue(sprintf('surcharge_%s#%d', 'label', $i), $surcharge->label);
+                $templateProcessor->setValue(
+                    sprintf('surcharge_%s#%d', 'price', $i),
+                    $this->formatPrice($surcharge->price)
+                );
+                $templateProcessor->setValue(
+                    sprintf('surcharge_%s#%d', 'total_price', $i),
+                    $this->formatPrice($surcharge->total_price)
+                );
+            }
+        } catch (WordException $e) {
+        }
     }
 }
