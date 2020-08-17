@@ -80,12 +80,12 @@ class WordTemplate extends Document implements IsotopeDocument
      * multiline content cannot be processed.
      *
      * For the collection items, we use the `cloneRow("item_name", n)` method. The word template should
-     * provide the following table:  | Quantity         | Product Name | Price         | Total Price         |
-     *                               | ${item_quantity} | ${item_name} | {$item_price} | ${item_price_total} |
+     * provide the following table:  | Quantity         | Product      | Price         | Total Price         |
+     *                               | ${item_quantity} | ${item_name} | {$item_price} | ${item_total_price} |
      *                               |                  |              | Total         | ${order_total}      |
      *
      * As you can see, the second row will be duplicated because it holds the "item_name" variable.
-     * This requires the "item_name" column to be present in the table though.
+     * It is required to have the "item_name" column in the table though.
      * The table can be extended with a placeholder row for the surcharges (row must contain `${surcharge_label}`).
      * You may then want to place a row with `${order_subtotal}` in between.
      */
@@ -154,7 +154,7 @@ class WordTemplate extends Document implements IsotopeDocument
 
     private function prepareEnvironment(IsotopeProductCollection $collection): void
     {
-        /* @var PageModel&\PageModel $objPage */
+        /* @var PageModel|\PageModel $objPage */
         global $objPage;
 
         if (!\is_object($objPage) && $collection->pageId > 0) {
