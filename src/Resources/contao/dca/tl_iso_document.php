@@ -18,6 +18,7 @@ $GLOBALS['TL_DCA']['tl_iso_document']['fields']['wordDocumentTpl'] = [
     'inputType' => 'fileTree',
     'exclude'   => true,
     'eval'      => [
+        'mandatory'  => true,
         'fieldType'  => 'radio',
         'multiple'   => false,
         'files'      => true,
