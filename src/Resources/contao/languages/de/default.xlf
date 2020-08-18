@@ -3,7 +3,7 @@
     <file>
         <body>
             <trans-unit id="MODEL.tl_iso_document.word_template.0">
-                <target>Microsft Word-Vorlage</target>
+                <target>Microsoft Word-Vorlage</target>
             </trans-unit>
         </body>
     </file>
