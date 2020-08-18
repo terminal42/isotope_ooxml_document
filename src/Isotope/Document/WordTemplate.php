@@ -133,24 +133,6 @@ class WordTemplate extends Document implements IsotopeDocument
         return $collection->getNotificationTokens(0);
     }
 
-    private function prepareEnvironment(IsotopeProductCollection $collection): void
-    {
-        /* @var PageModel|\PageModel $objPage */
-        global $objPage;
-
-        if (!\is_object($objPage) && $collection->pageId > 0) {
-            $objPage = PageModel::findWithDetails($collection->pageId);
-            $objPage = Frontend::loadPageConfig($objPage);
-
-            System::loadLanguageFile('default', $GLOBALS['TL_LANGUAGE'], true);
-        }
-    }
-
-    private function formatPrice($price)
-    {
-        return Isotope::formatPriceWithCurrency($price, false);
-    }
-
     private function processItems(TemplateProcessor $templateProcessor, IsotopeProductCollection $order): void
     {
         $sortCallback = ProductCollection::getItemsSortingCallable($this->orderCollectionBy);
@@ -183,16 +165,28 @@ class WordTemplate extends Document implements IsotopeDocument
                 ++$i;
 
                 $templateProcessor->setValue(sprintf('surcharge_%s#%d', 'label', $i), $surcharge->label);
-                $templateProcessor->setValue(
-                    sprintf('surcharge_%s#%d', 'price', $i),
-                    $this->formatPrice($surcharge->price)
-                );
-                $templateProcessor->setValue(
-                    sprintf('surcharge_%s#%d', 'total_price', $i),
-                    $this->formatPrice($surcharge->total_price)
-                );
+                $templateProcessor->setValue(sprintf('surcharge_%s#%d', 'price', $i), $this->formatPrice($surcharge->price));
+                $templateProcessor->setValue(sprintf('surcharge_%s#%d', 'total_price', $i), $this->formatPrice($surcharge->total_price));
             }
         } catch (WordException $e) {
         }
+    }
+
+    private function prepareEnvironment(IsotopeProductCollection $collection): void
+    {
+        /* @var PageModel|\PageModel $objPage */
+        global $objPage;
+
+        if (!\is_object($objPage) && $collection->pageId > 0) {
+            $objPage = PageModel::findWithDetails($collection->pageId);
+            $objPage = Frontend::loadPageConfig($objPage);
+
+            System::loadLanguageFile('default', $GLOBALS['TL_LANGUAGE'], true);
+        }
+    }
+
+    private function formatPrice($price)
+    {
+        return Isotope::formatPriceWithCurrency($price, false);
     }
 }
