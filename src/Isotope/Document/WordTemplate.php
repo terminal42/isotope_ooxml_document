@@ -143,7 +143,7 @@ class WordTemplate extends Document implements IsotopeDocument
             foreach ($order->getItems($sortCallback) as $item) {
                 ++$i;
 
-                $templateProcessor->setValue(sprintf('item_%s#%d', 'name', $i), $item->getName());
+                $templateProcessor->setValue(sprintf('item_%s#%d', 'name', $i), html_entity_decode($item->getName()));
                 $templateProcessor->setValue(sprintf('item_%s#%d', 'quantity', $i), $item->quantity);
                 $templateProcessor->setValue(sprintf('item_%s#%d', 'price', $i), $this->formatPrice($item->getPrice()));
                 $templateProcessor->setValue(sprintf('item_%s#%d', 'total_price', $i), $this->formatPrice($item->getTotalPrice()));
