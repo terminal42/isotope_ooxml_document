@@ -147,8 +147,6 @@ class WordTemplate extends Document implements IsotopeDocument
                 $templateProcessor->setValue(sprintf('item_%s#%d', 'quantity', $i), $item->quantity);
                 $templateProcessor->setValue(sprintf('item_%s#%d', 'price', $i), $this->formatPrice($item->getPrice()));
                 $templateProcessor->setValue(sprintf('item_%s#%d', 'total_price', $i), $this->formatPrice($item->getTotalPrice()));
-                $templateProcessor->setValue(sprintf('item_%s#%d', 'attributes', $i), implode(', ', $item->getOptions()));
-                // TODO format attributes as with attributeLabel() and attributeValue() callbacks
             }
         } catch (WordException $e) {
         }
