@@ -26,6 +26,7 @@ use Isotope\Isotope;
 use Isotope\Model\Document;
 use Isotope\Model\ProductCollection;
 use PhpOffice\PhpWord\Exception\Exception as WordException;
+use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -86,6 +87,7 @@ class WordTemplate extends Document implements IsotopeDocument
      */
     protected function generateDocument(IsotopeProductCollection $order, array $variables): TemplateProcessor
     {
+        $rootDir = System::getContainer()->getParameter('kernel.project_dir');
         $pageModel = PageModel::findWithDetails($order->pageId);
         $dateFormat = $pageModel?->dateFormat ?? Config::get('dateFormat');
 
@@ -96,7 +98,7 @@ class WordTemplate extends Document implements IsotopeDocument
             throw new \LogicException('Could not find word document template. Make sure to have a word document assigned in the template configuration.');
         }
 
-        $templateProcessor = new TemplateProcessor(TL_ROOT.'/'.$templateFile->path);
+        $templateProcessor = new TemplateProcessor($rootDir.'/'.$templateFile->path);
 
         // Set the variables to replace in the template.
         foreach ($variables as $search => $replace) {
