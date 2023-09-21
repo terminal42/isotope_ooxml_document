@@ -16,15 +16,15 @@ $GLOBALS['TL_DCA']['tl_iso_document']['palettes']['word_template'] =
 
 $GLOBALS['TL_DCA']['tl_iso_document']['fields']['wordDocumentTpl'] = [
     'inputType' => 'fileTree',
-    'exclude'   => true,
-    'eval'      => [
-        'mandatory'  => true,
-        'fieldType'  => 'radio',
-        'multiple'   => false,
-        'files'      => true,
-        'filesOnly'  => true,
+    'exclude' => true,
+    'eval' => [
+        'mandatory' => true,
+        'fieldType' => 'radio',
+        'multiple' => false,
+        'files' => true,
+        'filesOnly' => true,
         'extensions' => 'doc,docx',
-        'tl_class'   => 'clr',
+        'tl_class' => 'clr',
     ],
-    'sql'       => 'binary(16) NULL',
+    'sql' => 'binary(16) NULL',
 ];

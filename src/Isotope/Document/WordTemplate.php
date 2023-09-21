@@ -37,18 +37,15 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
  */
 class WordTemplate extends Document implements IsotopeDocument
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function outputToBrowser(IsotopeProductCollection $objCollection)
+    public function outputToBrowser(IsotopeProductCollection $objCollection): void
     {
         $this->prepareEnvironment($objCollection);
 
-        $tokens    = $this->prepareCollectionTokens($objCollection);
+        $tokens = $this->prepareCollectionTokens($objCollection);
         $variables = $this->generateDocumentVariables($objCollection);
-        $document  = $this->generateDocument($objCollection, $variables);
-        $fileName  = $this->prepareFileName($this->fileTitle, $tokens).'.docx';
-        $tmpPath   = $document->save();
+        $document = $this->generateDocument($objCollection, $variables);
+        $fileName = $this->prepareFileName($this->fileTitle, $tokens).'.docx';
+        $tmpPath = $document->save();
 
         $response = new BinaryFileResponse($tmpPath);
         $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $fileName);
@@ -56,17 +53,14 @@ class WordTemplate extends Document implements IsotopeDocument
         throw new ResponseException($response);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function outputToFile(IsotopeProductCollection $objCollection, $strDirectoryPath)
     {
         $this->prepareEnvironment($objCollection);
 
-        $tokens    = $this->prepareCollectionTokens($objCollection);
+        $tokens = $this->prepareCollectionTokens($objCollection);
         $variables = $this->generateDocumentVariables($objCollection);
-        $document  = $this->generateDocument($objCollection, $variables);
-        $path      = $this->prepareFileName($this->fileTitle, $tokens, $strDirectoryPath).'.docx';
+        $document = $this->generateDocument($objCollection, $variables);
+        $path = $this->prepareFileName($this->fileTitle, $tokens, $strDirectoryPath).'.docx';
 
         $document->saveAs($path);
 
@@ -80,9 +74,9 @@ class WordTemplate extends Document implements IsotopeDocument
      * multiline content cannot be processed.
      *
      * For the collection items, we use the `cloneRow("item_name", n)` method. The word template should
-     * provide the following table:  | Quantity         | Product      | Price         | Total Price         |
+     * provide the following table: | Quantity | Product | Price | Total Price |
      *                               | ${item_quantity} | ${item_name} | {$item_price} | ${item_total_price} |
-     *                               |                  |              | Total         | ${order_total}      |
+     *                               | | | Total | ${order_total} |
      *
      * As you can see, the second row will be duplicated because it holds the "item_name" variable.
      * It is required to have the "item_name" column in the table though.
@@ -91,7 +85,7 @@ class WordTemplate extends Document implements IsotopeDocument
      */
     protected function generateDocument(IsotopeProductCollection $order, array $variables): TemplateProcessor
     {
-        $pageModel  = PageModel::findWithDetails($order->page_id);
+        $pageModel = PageModel::findWithDetails($order->page_id);
         $dateFormat = $pageModel->dateFormat ?: $GLOBALS['TL_CONFIG']['dateFormat'];
 
         Settings::setOutputEscapingEnabled(true);
@@ -136,10 +130,12 @@ class WordTemplate extends Document implements IsotopeDocument
     private function processItems(TemplateProcessor $templateProcessor, IsotopeProductCollection $order): void
     {
         $sortCallback = ProductCollection::getItemsSortingCallable($this->orderCollectionBy);
+
         try {
             $templateProcessor->cloneRow('item_name', $order->countItems());
 
             $i = 0;
+
             foreach ($order->getItems($sortCallback) as $item) {
                 ++$i;
 
@@ -155,10 +151,12 @@ class WordTemplate extends Document implements IsotopeDocument
     private function processSurcharges(IsotopeProductCollection $order, TemplateProcessor $templateProcessor): void
     {
         $surcharges = $order->getSurcharges();
+
         try {
             $templateProcessor->cloneRow('surcharge_label', \count($surcharges));
 
             $i = 0;
+
             foreach ($surcharges as $surcharge) {
                 ++$i;
 
@@ -172,7 +170,7 @@ class WordTemplate extends Document implements IsotopeDocument
 
     private function prepareEnvironment(IsotopeProductCollection $collection): void
     {
-        /* @var PageModel|\PageModel $objPage */
+        /** @var PageModel|\PageModel $objPage */
         global $objPage;
 
         if (!\is_object($objPage) && $collection->pageId > 0) {
