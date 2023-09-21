@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Terminal42\IsotopeOoxmlDocument\Isotope\Document;
 
+use Contao\Config;
 use Contao\CoreBundle\Exception\ResponseException;
 use Contao\FilesModel;
 use Contao\PageModel;
@@ -33,7 +34,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 /**
  * This document model takes a docx-file as input,
  * uses the template processor to replace variables in the template,
- * and outputs the word document (untouched file unless variables processing).
+ * and outputs the Word document (untouched file unless variables processing).
  */
 class WordTemplate extends Document implements IsotopeDocument
 {
@@ -85,8 +86,8 @@ class WordTemplate extends Document implements IsotopeDocument
      */
     protected function generateDocument(IsotopeProductCollection $order, array $variables): TemplateProcessor
     {
-        $pageModel = PageModel::findWithDetails($order->page_id);
-        $dateFormat = $pageModel->dateFormat ?: $GLOBALS['TL_CONFIG']['dateFormat'];
+        $pageModel = PageModel::findWithDetails($order->pageId);
+        $dateFormat = $pageModel?->dateFormat ?? Config::get('dateFormat');
 
         Settings::setOutputEscapingEnabled(true);
 
@@ -124,7 +125,10 @@ class WordTemplate extends Document implements IsotopeDocument
 
         // Since we don't pass a notification id, the tokens "cart_text" and "cart_html"
         // will not be generated, which we cannot process anyway.
-        return $collection->getNotificationTokens(0);
+        $variables = $collection->getNotificationTokens(0);
+
+        // Only scalar values are supported
+        return array_filter($variables, 'is_scalar');
     }
 
     private function processItems(TemplateProcessor $templateProcessor, IsotopeProductCollection $order): void
